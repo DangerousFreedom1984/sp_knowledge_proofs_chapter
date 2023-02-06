@@ -1,0 +1,426 @@
+\documentclass[usletter,11pt,english,oneside,onecolumn,final,openany]{report}
+
+%Primary packages
+\usepackage{fancyvrb}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[pdftex]{graphicx}
+
+
+% Useful packages:
+
+% Advanced mathematical formulas and symbols
+% -------------------------------------
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{bm}
+
+% Footnotes
+%\usepackage{hyperref}
+% -------------------------------------
+\usepackage[stable,splitrule]{footmisc}
+
+% Color management package
+% -------------------------------------
+\usepackage[usenames,dvipsnames]{xcolor}
+
+% Control line spacing 
+% -------------------------------------
+% putting this between footmisc and hyperref seemed to fix broken footnote links
+\usepackage{setspace}
+\AtBeginDocument{\let~=\nobreakspace}
+\spacing{1.1}
+
+% Advanced crossreferencing commands 
+% -------------------------------------
+% Default settings:
+% \usepackage[]{hyperref}
+% Disable link coloring:
+% \usepackage[colorlinks=false]{hyperref}
+% Enable link coloring with personalized colors, make page number (not text) be link on the Table Of Contents (needs color package)
+\usepackage[colorlinks=true, linkcolor=BlueViolet, citecolor=BlueViolet, urlcolor=BlueViolet,linktocpage=true]{hyperref}
+
+%% more footnote stuff
+\usepackage{footnotebackref}
+
+\let\oldFootnote\footnote
+\newcommand\nextToken\relax
+
+\renewcommand\footnote[1]{%
+    \oldFootnote{#1}\futurelet\nextToken\isFootnote}
+
+\newcommand\isFootnote{%
+    \ifx\footnote\nextToken\textsuperscript{,}\fi}
+
+
+% Flexible interface to page dimensions
+% -------------------------------------
+% Default settings:
+% \usepackage[]{geometry}
+% Set specific margins:
+\usepackage{marginnote}
+\usepackage[outer=2.62cm,inner=2.62cm,top=3cm,bottom=2.75cm, marginparwidth=2.1cm, marginparsep=.35cm]{geometry}
+
+
+%Tree drawing
+\usepackage{tikz}
+\usetikzlibrary{trees, arrows}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.15}
+
+\usepackage[edges,linguistics]{forest}
+
+
+% Tabular package extensions
+% -------------------------------------
+% \usepackage{array}
+% \usepackage{multirow}
+
+% Modify chapter level headings
+% -------------------------------------
+\usepackage[Sonny]{fncychap}
+\usepackage{fancyhdr}
+\fancyhead{}
+\fancyfoot{}
+\rhead[\small \leftmark]{\small \thepage}
+\lhead[\small \thepage]{\small \leftmark}
+\setlength{\headheight}{13.2pt}
+
+\ChRuleWidth{1pt}
+\ChNameAsIs
+\ChNameUpperCase
+\ChNameVar{\Large\bf}
+\ChNumVar{\Huge} 
+\ChTitleVar{\LARGE}
+
+% Modify appendix and add subappendices environments
+% -------------------------------------
+\usepackage{appendix}
+
+% Paragraph indentation and skip
+% -------------------------------------
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.7ex plus 0.5ex minus 0.8ex}
+
+\usepackage{xspace}
+\newcommand\nd{\textsuperscript{nd}\xspace}
+\newcommand\rd{\textsuperscript{rd}\xspace}
+\newcommand\rds{\textsuperscript{rds}\xspace}
+\newcommand\nth{\textsuperscript{th}\xspace}
+\newcommand\nths{\textsuperscript{ths}\xspace}
+
+% List spacing
+\usepackage{enumitem}
+\setlist[itemize]{topsep=0pt}
+\newcommand{\listspace}{-.4em}
+
+
+
+
+\begin{document}
+
+
+\chapter{Seraphis knowledge proofs}
+
+The idea is to provide a comprehensive set of tools to prove knowledge of a specific information. This can be used, for instance, for the purpose of proving/verifying that: a payment was done, a person has a certain available balance, a person owns a certain address and etc. These tools open the path for a complete audit framework.
+
+
+\section{Enote ownership proof}
+
+The idea is to prove knowledge of an enote by verifying equation \ref{eq:ota1}.
+
+\begin{equation}
+K_{o} = k^{o}_{g} G + k^{o}_{x} X + k^{o}_{u} U + K_1 
+\label{eq:ota1}
+\end{equation}
+
+where,
+
+\begin{align}
+    k_{g}^{o} = \mathcal{H}_{n}(``\text{jamtis\_sender\_extension\_g}", K_1, q, C) \label{eq:kg} \\
+    k_{x}^{o} = \mathcal{H}_{n}(``\text{jamtis\_sender\_extension\_x}", K_1, q, C) \label{eq:kx} \\
+    k_{u}^{o} = \mathcal{H}_{n}(``\text{jamtis\_sender\_extension\_u}", K_1, q, C) \label{eq:ku}
+\end{align}
+
+\subsection{Prover}
+
+The prover provides:
+	
+\begin{itemize}
+\item $q$ - Sender-receiver-secret
+\item $K_1$ - Jamtis-address-spend-key
+\item $K_{o}$ - Enote onetime-address
+\end{itemize}
+
+\subsection{Verifier}
+
+The verifier gets the recorded commitment amount on chain for the enote being proved and he reconstructs the enote from equation \ref{eq:ota1}.
+
+%----------------------------------------------------------------------
+
+\section{Enote amount proof}
+
+The idea is to prove knowledge of the amount in an enote by verifying equation \ref{eq:enote_amount1}.
+
+\begin{equation}
+C = a G + b H 
+\label{eq:enote_amount1}
+\end{equation}
+
+where $G$ and $H$ are generators.
+
+\subsection{Prover}
+
+The prover provides:
+	
+\begin{itemize}
+\item $a$ - Blinding factor
+\item $b$ - Amount
+\item $C$ - Public Commitment
+\end{itemize}
+
+\subsection{Verifier}
+
+The verifier simply verifies if the equation \ref{eq:enote_amount1} holds. 
+
+%----------------------------------------------------------------------
+
+\section{Enote sent proof}
+
+The idea is to prove that an enote was sent to a certain address or received by a certain addess. This proof is the equivalent of the OutProofs and InProofs in the legacy protocol. There are two ways of creating them and in both cases the prover has to provide the sender-receiver-secret described by equation \ref{eq:q}\footnote{The domain separator here can be ``jamtis\_sr\_secret\_plain" for non self-send enotes or one of the self-send variations of domain separator like: ``jamtis\_selfsend\_dummy", ``jamtis\_selfsend\_change" and ``jamtis\_selfsend\_self\_spend"}:
+
+\begin{equation}
+q = \mathcal{H}_{32}(``\text{domain-separator}", K_d, K_e, \text{input\_context}) 
+\label{eq:q}
+\end{equation}
+
+Notice that 
+\begin{equation}
+    K_d = r * K_2 = k_{fr} * K_e 
+\label{eq:Kd}
+\end{equation}
+
+where $K_d$ is the sender-receiver Diffie-Hellman derivation. $r$ is the enote ephemeral-private-key. $K_2$ is the public address $K_2$ of the receiver. $k_{fr}$ is the find-received private key. $K_e$ is the enote ephemeral-public key. 
+
+
+\begin{itemize}
+    \item The sender of enote $K_{o}$ to address $K_1$ wants to prove that he sent this enote so he has to provide $q$ (sender-receiver-secret) and the only way for him to do it is by knowing the enote ephemeral-private-key $r$ and the address of the recipient $K_2$ to generate $K_d$. After that he can calculate $q$ using equation \ref{eq:q}.
+    \item The receiver of enote $K_{o}$ to address $K_1$ wants to prove that he received this enote so he has to provide $q$ (sender-receiver-secret) and the only way for him to do it is by knowing the find-received private key $k_{fr}$ and the enote ephemeral-public key (which is public knowledge) $K_e$ to generate $K_d$. After that he can calculate $q$ using equation \ref{eq:q}.
+\end{itemize}
+
+\subsection{Prover}
+
+The prover provides:
+	
+\begin{itemize}
+\item $enote\_ownership\_proof$ - Enote Ownership Proof
+\item $enote\_amount\_proof$ - Enote Amount Proof
+\end{itemize}
+
+\subsection{Verifier}
+
+The verifier gets both proofs and the corresponding enote recorded on-chain and checks if the proofs are valid as explained in the previous sections.
+
+%----------------------------------------------------------------------
+
+\section{Address ownership proof}
+
+The idea is to prove that someone knows the master and view-balance private keys ($k_m$ and $k_{vb}$) corresponding to a certain address $K_1$.
+
+The proof works for either $K_1$ and $K_{1}^{base} (K_s)$ defined by equations \ref{eq:k1ks}.
+
+\begin{align}
+    \label{eq:k1ks}
+    K_1 &= k^j_g G + k^j_x X + k^j_u U + K_s \\
+    K_s &= k_{vb} X + k_m U
+\end{align}
+
+
+\subsection{Prover}
+
+The prover does the following:
+
+\begin{enumerate}
+    \item Generates a scalar $k_g^{offset} = \mathcal{H}_{n}(K_1)$.
+    \item Generates a new address $K_o^{new} = k_g^{offset} G + K_1$.
+    \item Makes a composition proof on $K_o^{new}$ using a message agreed by the verifier.
+    \item Publishes the proof and the corresponding key image.
+\end{enumerate}
+	
+\subsection{Verifier}
+
+The verifier gets the composition\_proof and the key image, he calculates $k_g^{offset}$ and he gets the corresponding address being proved ($K_1$). Finally he performs a composition proof on the new address $K_o^{new}$. Notice that it works because the goal of the composition proofs is to prove knowledge of $(a,b,c)$ in the equation $K = a A + b B + c C$ without revealing $(a,b,c)$ in the bases $(A,B,C)$.
+
+%----------------------------------------------------------------------
+
+\section{Address index proof}
+
+The idea is to prove that someone knows the index from which a jamtis address was built by proving knowledge of the generator $gen$ defined by equation \ref{eq:generator_ga}.
+
+\begin{equation}
+    gen = \mathcal{H}_{32}[k_{ga}](j)
+    \label{eq:generator_ga}
+\end{equation}
+
+Notice that the terms from equation \ref{eq:k1ks} can be described by equations \ref{eq:termsk1-g}-\ref{eq:termsk1-u}.
+
+\begin{align}
+k^j_g = \mathcal{H}_n(\text{``jamtis\_spendkey\_extension\_g"}, K_s, j, generator) \\
+    \label{eq:termsk1-g}
+k^j_x = \mathcal{H}_n(\text{``jamtis\_spendkey\_extension\_x"}, K_s, j, generator) \\
+    \label{eq:termsk1-x}
+k^j_u = \mathcal{H}_n(\text{``jamtis\_spendkey\_extension\_u"}, K_s, j, generator) \\
+    \label{eq:termsk1-u}
+\end{align}
+
+
+\subsection{Prover}
+
+The prover does the following:
+
+\begin{enumerate}
+    \item Calculates the generator (since he knows $k_{ga}$ and $j$).
+    \item Publishes $K_s$, $K_1$, $gen$ and $j$.
+\end{enumerate}
+	
+\subsection{Verifier}
+
+The verifier tries to reconstruct the address $K_1$ and checks if it matches the original one.
+
+%----------------------------------------------------------------------
+
+\section{Enote key image proof}
+
+The idea is to prove that a key image corresponds to a certain enote (onetime-address).
+
+\subsection{Prover}
+
+The prover does the following:
+
+\begin{enumerate}
+    \item Calculates the key image corresponding to the enote.
+    \item Calculates the composition proof.
+    \item Publishes the composition proof.
+\end{enumerate}
+	
+\subsection{Verifier}
+
+The verifier gets the onetime-address, the supposed key-image corresponding to it and verifies the composition proof. If it is valid then the key image corresponds to that onetime-address and the prover knows all the openings.
+
+%----------------------------------------------------------------------
+
+\section{Transaction funded proof}
+
+The idea is to prove that someone funded a particular transaction without exposing the transaction inputs.
+
+\subsection{Prover}
+
+The prover does the following:
+
+\begin{enumerate}
+    \item Generates a random $t_k^{new}$.
+    \item Calculates $K_o^{new} = t_k^{new} G + K_o$.
+    \item Make a composition proof on $K_o^{new}$ using a message agreed by the verifier.
+    \item Publishes the composition proof and $K_o^{new}$.
+\end{enumerate}
+	
+\subsection{Verifier}
+
+Verifies the composition proof together with the message they agreed on.
+
+%----------------------------------------------------------------------
+
+\section{Reserve proof}
+
+The idea is to prove that someone has a certain unspent amount available to spend.
+
+\subsection{Prover}
+
+The prover does the following for each enote that he wants to expose the key image and the amount:
+
+\begin{enumerate}
+    \item Generates an ownership proof.
+    \item Generates an amount proof.
+    \item Generates a key image proof.
+    \item Publishes the all the 3 proofs, the corresponding enotes, key images and ledger indices.
+
+\end{enumerate}
+	
+\subsection{Verifier}
+
+Verifies that enotes are on-chain, verifies that key images are not on-chain yet and for each enote, he verifies the ownership proof, amount proof and key image proof.
+
+%----------------------------------------------------------------------
+
+\section{Enote unspent proof}
+
+The idea here is the same given at \href{https://web.getmonero.org/library/Zero-to-Monero-2-0-0.pdf}{ZtM2} for the UnspentProofs. The prover will make a proof showing whether the enote being tested was spent or not in that ring.
+
+Therefore this proof may be valid only for a specific period, e.g. until the end of month May of 2023, as the prover can only provide proofs until a specific date as he does not know when his enotes will be used as a decoy in other transactions in the future.
+
+Also, the unspent proofs can be very resource demanding as the verifier can't believe the prover and he has to scan the blockchain looking for all the transactions that an enote have appeared. Some research is being done in this regard.
+
+\subsection{Prover}
+
+The main idea of the proof is to not leak the key image of the original enote represented by equation \ref{eq:ki} while at the same time verifying whether this key image corresponds to the enote being tested represented by equation \ref{eq:ko}.
+
+\begin{equation}
+    \tilde{K}  = \frac{(k^o_u + k^j_u + k_m)}{(k^o_x + k^j_x + k_{vb})} U = \frac{k_b}{k_a}U
+\label{eq:ki}
+\end{equation}
+
+\begin{equation}
+    K_o = k_a X + k_b U + k_c G
+\label{eq:ko}
+\end{equation}
+
+where the terms $k_a$,$k_b$ and $k_c$ are defined as in equation \ref{eq:terms_enote_a}-\ref{eq:terms_enote_c}.
+
+\begin{align}
+    \label{eq:terms_enote_a}
+    k_a &= k^o_x + k^j_x + k_{vb} \\
+    \label{eq:terms_enote_b}
+    k_b &= k^o_u + k^j_u + k_{m} \\
+    \label{eq:terms_enote_c}
+    k_c &= k^o_g + k^j_g
+\end{align}
+
+This can be achieved by doing the following for each enote and key image being tested:
+\begin{enumerate}
+\item Exposing $k_a X$, $k_b U$, $k_c G$ and $k_a \tilde{K}^?  = (k^o_x + k^j_x + k_{vb}) \tilde{K}^? $.
+\item Making a Schnorr proof on $k_a$ in the bases ${(X,\tilde{K}^?)}$.
+\item Making a Schnorr proof on $k_b$ in the base $U$.
+\item Making a Schnorr proof on $k_c$ in the base $G$.
+\end{enumerate}
+
+
+\subsection{Verifier}
+
+The verifier must do the following steps for each enote and key image being tested:
+
+\begin{enumerate}
+\item Checks if $K_o = k_a X + k_b U +k_c G$.
+\item Verify the Schnorr proof on ${(X,\tilde{K}^?)}$.
+\item Verify the Schnorr proof on ${U}$.
+\item Verify the Schnorr proof on ${G}$.
+\item Checks if $k_a \tilde{K}^? \neq k_b U$. If they are the same then the enote was spent in that transaction.
+\end{enumerate}
+
+
+\subsection{Why it works?}
+
+Rearranging the key image (linking tag) equation:
+\begin{itemize}
+    \item $k_a \tilde{K}^? = k_b*U$
+\end{itemize}
+
+Since we know the key image being tested ($\tilde{K}^?$), we can make a proof showing that we know $k_a \tilde{K}^?$  and $k_bU$ without revealing $k_a$ and $k_b$ and compare both.
+
+The advantage of using this proof instead of reserve proofs or \href{https://moneroresearch.info/index.php?action=resource\_RESOURCEVIEW\_CORE&id=35}{MProve+} is the privacy gain that one has by not exposing the key image (and letting the verifier know when you spend a transaction in the future).
+The disadvantage is the complexity from the verifier side as he has to scan the whole blockchain for a period of time to test all enotes being used as a decoy.
+
+
+
+\end{document}
